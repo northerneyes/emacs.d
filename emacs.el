@@ -224,9 +224,8 @@
 (show-paren-mode 1)
 
 (use-package flycheck
-  :ensure t
-  :config
-    (add-hook 'after-init-hook 'global-flycheck-mode))
+ :commands (flycheck-mode)
+ :init (add-hook 'prog-mode-hook #'flycheck-mode))
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -238,20 +237,7 @@
    typescript-indent-level 2
    typescript-auto-indent-flag 0))
 
-(defun setup-tide-mode ()
-    (interactive)
-    (tide-setup)
-    (flycheck-mode +1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (setq tide-tsserver-executable "node_modules/.bin/tsserver")
-    (eldoc-mode +1)
-    (tide-hl-identifier-mode +1)
-    ;; company is an optional dependency. You have to
-    ;; install it separately via package-install
-    ;; `M-x package-install [ret] company`
-    (company-mode +1))
-
-  (use-package tide
+(use-package tide
     :ensure t
     :after (typescript-mode company flycheck)
     :hook ((typescript-mode . tide-setup)
