@@ -75,9 +75,6 @@
 
 (setq ring-bell-function 'ignore)
 (setq inhibit-startup-message t)
-(setq indo-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
 
 (defalias 'list-buffers 'ibuffer)
 
@@ -86,6 +83,11 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
+
+(setq ido-enable-flex-matching nil)
+(setq ido-create-new-buffer 'always)
+(setq ido-everywhere t)
+(ido-mode 1)
 
 (setq make-backup-file nil)
 (setq auto-save-default nil)
@@ -96,11 +98,6 @@
   :ensure t
   :init
   (which-key-mode))
-
-(use-package org-bullets
-  :ensure t
-  :config
-  (add-hook 'org-mode-hook(lambda () (org-bullets-mode 1))))
 
 (use-package ace-window
   :ensure t
@@ -185,6 +182,19 @@
 (setq company-dabbrev-downcase 0)
 (setq company-idle-delay 0)
 
+(use-package smartparens
+    :ensure t
+    :diminish smartparens-mode
+    :config
+    (add-hook 'prog-mode-hook 'smartparens-mode))
+
+(use-package aggressive-indent
+      :ensure t)
+
+(add-hook 'prog-mode-hook 'electric-pair-mode)
+
+(show-paren-mode 1)
+
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode))
@@ -230,6 +240,28 @@
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+
+(setq org-ellipsis " ")
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
+(setq org-confirm-babel-evaluate nil)
+(setq org-export-with-smart-quotes t)
+(setq org-src-window-setup 'current-window)
+
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook(lambda () (org-bullets-mode 1))))
+
+(use-package htmlize
+  :ensure t)
+
+(add-hook 'org-mode-hook
+	    '(lambda ()
+	       (visual-line-mode 1)))
+
+(add-to-list 'org-structure-template-alist
+	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 
 (defun config-reload ()
   "Reloads ~/.emacs.d/config.org at runtime"

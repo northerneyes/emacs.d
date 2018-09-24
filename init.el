@@ -81,3 +81,11 @@
     (set-char-table-range composition-function-table (car char-regexp)
                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))
