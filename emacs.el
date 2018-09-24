@@ -22,7 +22,7 @@
 					    'face (zerodark-face-when-active 'zerodark-ok-face))))
 		   (`running     (propertize "Running"
 					     'face (zerodark-face-when-active 'zerodark-warning-face)))
-		   (`no-checker  (propertize "⚠ No Checker"
+		   (`no-checker  (propertize "No Checker"
 					     'face (zerodark-face-when-active 'zerodark-warning-face)))
 		   (`not-checked "Disabled")
 		   (`errored     (propertize "Error"
