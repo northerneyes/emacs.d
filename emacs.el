@@ -282,11 +282,6 @@
   (diminish 'page-break-lines-mode)
   (diminish 'auto-revert-mode))
 
-(use-package hungry-delete
-  :ensure t
-  :config
-    (global-hungry-delete-mode))
-
 (defun kill-current-buffer ()
   "Kills the current buffer."
   (interactive)

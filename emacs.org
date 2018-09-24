@@ -361,13 +361,6 @@ Set up default behaviour for ansi-term
     (diminish 'page-break-lines-mode)
     (diminish 'auto-revert-mode))
 #+END_SRC
-* Hungry deletion
-#+BEGIN_SRC emacs-lisp
-(use-package hungry-delete
-  :ensure t
-  :config
-    (global-hungry-delete-mode))
-#+END_SRC
 * Buffers
 ** Kill current buffer
 #+BEGIN_SRC emacs-lisp
