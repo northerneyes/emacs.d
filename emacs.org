@@ -139,6 +139,10 @@ bottleneck off
           (lambda ()
             (setq-local bidi-display-reordering nil)))
 #+END_SRC
+** Subword
+#+BEGIN_SRC emacs-lisp
+(global-subword-mode 1)
+#+END_SRC
 * Terminal
 Set up default behaviour for ansi-term
 #+BEGIN_SRC emacs-lisp
@@ -178,24 +182,25 @@ Set up default behaviour for ansi-term
 #+END_SRC
 * Projects and ag search for projects
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-global-mode)
-  (setq projectile-completion-system 'ivy))
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-global-mode)
+    (setq projectile-completion-system 'ivy))
 
-(use-package counsel-projectile
-  :ensure t
-  :config
-  (counsel-projectile-mode))
+  (use-package counsel-projectile
+    :ensure t
+    :config
+    (counsel-projectile-mode))
 
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-(use-package ag
-  :ensure t
-  )
+  (projectile-mode +1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-find-file)
+  (define-key projectile-mode-map (kbd "s-r") 'projectile-switch-project)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-<tab>") 'projectile-recentf)
+  (use-package ag
+    :ensure t
+    )
 #+END_SRC
 * Company autocomplete
 #+BEGIN_SRC emacs-lisp
@@ -344,3 +349,34 @@ Set up default behaviour for ansi-term
     (org-babel-load-file (expand-file-name "~/.emacs.d/emacs.org")))
   (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
+* Diminish modes
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
+    :ensure t
+    :init
+    (diminish 'which-key-mode)
+    (diminish 'hungry-delete-mode)
+    (diminish 'subword-mode)
+    (diminish 'irony-mode)
+    (diminish 'page-break-lines-mode)
+    (diminish 'auto-revert-mode))
+#+END_SRC
+* Hungry deletion
+#+BEGIN_SRC emacs-lisp
+(use-package hungry-delete
+  :ensure t
+  :config
+    (global-hungry-delete-mode))
+#+END_SRC
+* Buffers
+** Kill current buffer
+#+BEGIN_SRC emacs-lisp
+(defun kill-current-buffer ()
+  "Kills the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
+
+(setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
+#+END_SRC
+

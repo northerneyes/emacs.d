@@ -109,6 +109,8 @@
           (lambda ()
             (setq-local bidi-display-reordering nil)))
 
+(global-subword-mode 1)
+
 (defvar my-term "/usr/local/bin/fish")
 (defadvice ansi-term (before force-bash)
   (interactive (list my-term)))
@@ -153,9 +155,10 @@
   (counsel-projectile-mode))
 
 (projectile-mode +1)
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-find-file)
+(define-key projectile-mode-map (kbd "s-r") 'projectile-switch-project)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
+(define-key projectile-mode-map (kbd "C-<tab>") 'projectile-recentf)
 (use-package ag
   :ensure t
   )
@@ -268,3 +271,26 @@
   (interactive)
   (org-babel-load-file (expand-file-name "~/.emacs.d/emacs.org")))
 (global-set-key (kbd "C-c r") 'config-reload)
+
+(use-package diminish
+  :ensure t
+  :init
+  (diminish 'which-key-mode)
+  (diminish 'hungry-delete-mode)
+  (diminish 'subword-mode)
+  (diminish 'irony-mode)
+  (diminish 'page-break-lines-mode)
+  (diminish 'auto-revert-mode))
+
+(use-package hungry-delete
+  :ensure t
+  :config
+    (global-hungry-delete-mode))
+
+(defun kill-current-buffer ()
+  "Kills the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
+
+(setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))

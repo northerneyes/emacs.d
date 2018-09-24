@@ -88,4 +88,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))
+    (buffer-flip hungry-delete diminish aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))
