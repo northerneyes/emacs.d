@@ -16,7 +16,7 @@
 		   (`finished (if flycheck-current-errors
 				  (let ((count (let-alist (flycheck-count-errors flycheck-current-errors)
 						 (+ (or .warning 0) (or .error 0)))))
-				    (propertize (format "✖ %s Issue%s" count (if (eq 1 count) "" "s"))
+				    (propertize (format "%s Issue%s" count (if (eq 1 count) "" "s"))
 						'face (zerodark-face-when-active 'zerodark-error-face)))
 				(propertize "No Issues"
 					    'face (zerodark-face-when-active 'zerodark-ok-face))))
@@ -24,8 +24,8 @@
 					     'face (zerodark-face-when-active 'zerodark-warning-face)))
 		   (`no-checker  (propertize "⚠ No Checker"
 					     'face (zerodark-face-when-active 'zerodark-warning-face)))
-		   (`not-checked "✖ Disabled")
-		   (`errored     (propertize "⚠ Error"
+		   (`not-checked "Disabled")
+		   (`errored     (propertize "Error"
 					     'face (zerodark-face-when-active 'zerodark-error-face)))
 		   (`interrupted (propertize "⛔ Interrupted"
 					     'face (zerodark-face-when-active 'zerodark-error-face)))
@@ -224,8 +224,9 @@
 (show-paren-mode 1)
 
 (use-package flycheck
- :commands (flycheck-mode)
- :init (add-hook 'prog-mode-hook #'flycheck-mode))
+  :commands (flycheck-mode)
+  :init (add-hook 'prog-mode-hook #'flycheck-mode))
+(setq flycheck-check-syntax-automatically '(mode-enabled save))
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -238,13 +239,11 @@
    typescript-auto-indent-flag 0))
 
 (use-package tide
-    :ensure t
-    :after (typescript-mode company flycheck)
-    :hook ((typescript-mode . tide-setup)
-	   (typescript-mode . tide-hl-identifier-mode)
-     (before-save . tide-format-before-save)))
-
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+	 (typescript-mode . tide-hl-identifier-mode)
+   (before-save . tide-format-before-save)))
 
 (use-package magit
     :ensure t

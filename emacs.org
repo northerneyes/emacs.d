@@ -26,16 +26,16 @@ So let's use our own implementation
 		     (`finished (if flycheck-current-errors
 				    (let ((count (let-alist (flycheck-count-errors flycheck-current-errors)
 						   (+ (or .warning 0) (or .error 0)))))
-				      (propertize (format "✖ %s Issue%s" count (if (eq 1 count) "" "s"))
+				      (propertize (format "%s Issue%s" count (if (eq 1 count) "" "s"))
 						  'face (zerodark-face-when-active 'zerodark-error-face)))
 				  (propertize "No Issues"
 					      'face (zerodark-face-when-active 'zerodark-ok-face))))
 		     (`running     (propertize "Running"
 					       'face (zerodark-face-when-active 'zerodark-warning-face)))
-		     (`no-checker  (propertize "⚠ No Checker"
+		     (`no-checker  (propertize "No Checker"
 					       'face (zerodark-face-when-active 'zerodark-warning-face)))
-		     (`not-checked "✖ Disabled")
-		     (`errored     (propertize "⚠ Error"
+		     (`not-checked "Disabled")
+		     (`errored     (propertize "Error"
 					       'face (zerodark-face-when-active 'zerodark-error-face)))
 		     (`interrupted (propertize "⛔ Interrupted"
 					       'face (zerodark-face-when-active 'zerodark-error-face)))
