@@ -225,8 +225,23 @@
 
 (use-package flycheck
   :commands (flycheck-mode)
+  :diminish
   :init (add-hook 'prog-mode-hook #'flycheck-mode))
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
+(setq flycheck-check-syntax-automatically '(mode-enabled idle-change save))
+
+(defun magnars/adjust-flycheck-automatic-syntax-eagerness ()
+  "Adjust how often we check for errors based on if there are any.
+This lets us fix any errors as quickly as possible, but in a
+clean buffer we're an order of magnitude laxer about checking."
+  (setq flycheck-idle-change-delay
+	(if flycheck-current-errors 0.5 30.0)))
+
+;; Each buffer gets its own idle-change-delay because of the
+;; buffer-sensitive adjustment above.
+(make-variable-buffer-local 'flycheck-idle-change-delay)
+
+(add-hook 'flycheck-after-syntax-check-hook
+	  'magnars/adjust-flycheck-automatic-syntax-eagerness)
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
