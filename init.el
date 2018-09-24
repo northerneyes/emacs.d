@@ -8,7 +8,6 @@
 ;                              (float-time
 ;                               (time-subtract after-init-time before-init-time)))
 ;                      gcs-done)))
-
 (defvar startup/file-name-handler-alist file-name-handler-alist)
 (setq file-name-handler-alist nil)
 

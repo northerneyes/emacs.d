@@ -9,6 +9,32 @@
       (load-theme 'zerodark t)
       (setq frame-title-format '(buffer-file-name "%f" ("%b"))))))
 
+(defun zerodark-modeline-flycheck-status-custom ()
+  "Return the status of flycheck to be displayed in the mode-line."
+  (when flycheck-mode
+    (let* ((text (pcase flycheck-last-status-change
+		   (`finished (if flycheck-current-errors
+				  (let ((count (let-alist (flycheck-count-errors flycheck-current-errors)
+						 (+ (or .warning 0) (or .error 0)))))
+				    (propertize (format "✖ %s Issue%s" count (if (eq 1 count) "" "s"))
+						'face (zerodark-face-when-active 'zerodark-error-face)))
+				(propertize "No Issues"
+					    'face (zerodark-face-when-active 'zerodark-ok-face))))
+		   (`running     (propertize "Running"
+					     'face (zerodark-face-when-active 'zerodark-warning-face)))
+		   (`no-checker  (propertize "⚠ No Checker"
+					     'face (zerodark-face-when-active 'zerodark-warning-face)))
+		   (`not-checked "✖ Disabled")
+		   (`errored     (propertize "⚠ Error"
+					     'face (zerodark-face-when-active 'zerodark-error-face)))
+		   (`interrupted (propertize "⛔ Interrupted"
+					     'face (zerodark-face-when-active 'zerodark-error-face)))
+		   (`suspicious  ""))))
+      (propertize text
+		  'help-echo "Show Flycheck Errors"
+		  'local-map (make-mode-line-mouse-map
+			      'mouse-1 #'flycheck-list-errors)))))
+
 (defun zerodark-setup-modeline-format-custom ()
   "Setup the mode-line format for zerodark."
   (interactive)
@@ -51,7 +77,7 @@
 		       zerodark-modeline-vc
 		     "")
 		  "  "
-		  (:eval (zerodark-modeline-flycheck-status))
+		  (:eval (zerodark-modeline-flycheck-status-custom))
 		  "  " mode-line-modes mode-line-misc-info mode-line-end-spaces
 		  ))
 )
@@ -84,11 +110,6 @@
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
-(setq ido-enable-flex-matching nil)
-(setq ido-create-new-buffer 'always)
-(setq ido-everywhere t)
-(ido-mode 1)
-
 (setq make-backup-file nil)
 (setq auto-save-default nil)
 
@@ -111,6 +132,8 @@
 
 (global-subword-mode 1)
 
+(delete-selection-mode 1)
+
 (defvar my-term "/usr/local/bin/fish")
 (defadvice ansi-term (before force-bash)
   (interactive (list my-term)))
@@ -119,7 +142,10 @@
 (use-package ivy
   :ensure t
   :diminish (ivy-mode)
-  :bind (("C-x b" . ivy-switch-buffer))
+  :bind (
+	 ("C-x b" . ivy-switch-buffer)
+	 ("s-b" . ivy-switch-buffer)
+	 ("C-<tab>" . ivy-switch-buffer))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
@@ -158,7 +184,6 @@
 (define-key projectile-mode-map (kbd "s-p") 'projectile-find-file)
 (define-key projectile-mode-map (kbd "s-r") 'projectile-switch-project)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-<tab>") 'projectile-recentf)
 (use-package ag
   :ensure t
   )
@@ -182,8 +207,8 @@
 (setq company-tooltip-align-annotations t)
 
 ;; some delay settings, fix it later
-(setq company-dabbrev-downcase 0)
-(setq company-idle-delay 0)
+;(setq company-dabbrev-downcase 0)
+;(setq company-idle-delay 0)
 
 (use-package smartparens
     :ensure t
@@ -200,7 +225,8 @@
 
 (use-package flycheck
   :ensure t
-  :init (global-flycheck-mode))
+  :config
+    (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -213,28 +239,30 @@
    typescript-auto-indent-flag 0))
 
 (defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (setq tide-tsserver-executable "node_modules/.bin/tsserver")
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (setq tide-tsserver-executable "node_modules/.bin/tsserver")
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    ;; company is an optional dependency. You have to
+    ;; install it separately via package-install
+    ;; `M-x package-install [ret] company`
+    (company-mode +1))
 
-(use-package tide
-  :ensure t
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-   (before-save . tide-format-before-save)))
+  (use-package tide
+    :ensure t
+    :after (typescript-mode company flycheck)
+    :hook ((typescript-mode . tide-setup)
+	   (typescript-mode . tide-hl-identifier-mode)
+     (before-save . tide-format-before-save)))
+
+(setq flycheck-check-syntax-automatically '(mode-enabled save))
 
 (use-package magit
     :ensure t
-    :bind ("C-x g" . magit-status))
+    :bind ("M-g" . magit-status))
 
 (use-package markdown-mode
   :ensure t
