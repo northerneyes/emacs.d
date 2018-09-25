@@ -246,7 +246,7 @@
     '(javascript-jshint)))
 
    (defun ge/js-flycheck ()
-     (setq flycheck-check-syntax-automatically '(mode-enabled idle-change save)))
+     (setq flycheck-check-syntax-automatically '(idle-change save)))
 
    (defun ge/ts-flycheck ()
      (setq flycheck-check-syntax-automatically '(mode-enabled idle-change save)))
