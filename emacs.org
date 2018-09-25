@@ -250,6 +250,13 @@ Set up default behaviour for ansi-term
 ;(setq company-dabbrev-downcase 0)
 ;(setq company-idle-delay 0)
 #+END_SRC
+* Env
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :config
+    (exec-path-from-shell-initialize))
+#+END_SRC
 * Coding
 ** Smart paranthes
 #+BEGIN_SRC emacs-lisp
@@ -299,7 +306,7 @@ Set up default behaviour for ansi-term
 ** Node env (fix it later)
 #+BEGIN_SRC emacs-lisp
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
-(setq exec-path (append exec-path '("/usr/local/bin")))
+;(setq exec-path (append exec-path '("/usr/local/bin")))
 #+END_SRC
 ** Typescript mode
 #+BEGIN_SRC emacs-lisp
@@ -316,8 +323,22 @@ Set up default behaviour for ansi-term
     :ensure t
     :after (typescript-mode company flycheck)
     :hook ((typescript-mode . tide-setup)
+	   (typescript-mode . add-node-modules-path)
 	   (typescript-mode . tide-hl-identifier-mode)
-     (before-save . tide-format-before-save)))
+	  ))
+#+END_SRC
+* Prettier
+#+BEGIN_SRC emacs-lisp
+  (use-package add-node-modules-path
+    :ensure t)
+
+  (use-package prettier-js
+    :ensure t)
+
+(eval-after-load 'typescript-mode
+    '(progn
+       (add-hook 'typescript-mode-hook #'add-node-modules-path)
+       (add-hook 'typescript-mode-hook #'prettier-js-mode)))
 #+END_SRC
 * Magit
 ** [[https://github.com/magit/magit/wiki/Cheatsheet][Cheatsheet]]
@@ -401,4 +422,3 @@ Set up default behaviour for ansi-term
 
 (setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
 #+END_SRC
-

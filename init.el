@@ -87,4 +87,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (buffer-flip hungry-delete diminish aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))
+    (exec-path-from-shell add-node-modules-path prettier-js buffer-flip hungry-delete diminish aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))

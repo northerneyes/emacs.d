@@ -210,6 +210,11 @@
 ;(setq company-dabbrev-downcase 0)
 ;(setq company-idle-delay 0)
 
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
 (use-package smartparens
     :ensure t
     :diminish smartparens-mode
@@ -244,7 +249,7 @@ clean buffer we're an order of magnitude laxer about checking."
 	  'george/adjust-flycheck-automatic-syntax-eagerness)
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
-(setq exec-path (append exec-path '("/usr/local/bin")))
+;(setq exec-path (append exec-path '("/usr/local/bin")))
 
 (use-package typescript-mode
   :ensure t
@@ -257,8 +262,20 @@ clean buffer we're an order of magnitude laxer about checking."
   :ensure t
   :after (typescript-mode company flycheck)
   :hook ((typescript-mode . tide-setup)
+	 (typescript-mode . add-node-modules-path)
 	 (typescript-mode . tide-hl-identifier-mode)
-   (before-save . tide-format-before-save)))
+	))
+
+(use-package add-node-modules-path
+    :ensure t)
+
+  (use-package prettier-js
+    :ensure t)
+
+(eval-after-load 'typescript-mode
+    '(progn
+       (add-hook 'typescript-mode-hook #'add-node-modules-path)
+       (add-hook 'typescript-mode-hook #'prettier-js-mode)))
 
 (use-package magit
     :ensure t
