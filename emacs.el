@@ -230,41 +230,53 @@
 (show-paren-mode 1)
 
 (use-package flycheck
-  :ensure t
-  :config
-  :init
-  (add-hook 'after-init-hook 'global-flycheck-mode)
-  (add-hook 'typescript-mode-hook #'flycheck-mode)
-  (add-hook 'rjsx-mode-hook #'flycheck-mode)
-  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
- )
+     :ensure t
+     :config
+     :init
+     (add-hook 'typescript-mode-hook #'flycheck-mode)
+     (add-hook 'typescript-mode-hook 'ge/ts-flycheck)
+     (add-hook 'rjsx-mode-hook  #'flycheck-mode)
+     (add-hook 'rjsx-mode-hook 'ge/js-flycheck)
+     (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
+    )
 
-(defun jc/use-eslint-from-node-modules ()
-    "Set local eslint if available."
-    (let* ((root (locate-dominating-file
-		  (or (buffer-file-name) default-directory)
-		  "node_modules"))
-	   (eslint (and root
-			(expand-file-name "node_modules/eslint/bin/eslint.js"
-					  root))))
-      (when (and eslint (file-executable-p eslint))
-	(setq-local flycheck-javascript-eslint-executable eslint))))
+;;disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
 
-(setq flycheck-check-syntax-automatically '(idle-change save))
+   (defun ge/js-flycheck ()
+     (setq flycheck-check-syntax-automatically '(mode-enabled idle-change save)))
 
-(defun george/adjust-flycheck-automatic-syntax-eagerness ()
-  "Adjust how often we check for errors based on if there are any.
-   This lets us fix any errors as quickly as possible, but in a
-   clean buffer we're an order of magnitude laxer about checking."
-  (setq flycheck-idle-change-delay
-	(if flycheck-current-errors 0.5 30.0)))
+   (defun ge/ts-flycheck ()
+     (setq flycheck-check-syntax-automatically '(mode-enabled idle-change save)))
 
-;; Each buffer gets its own idle-change-delay because of the
-;; buffer-sensitive adjustment above.
-(make-variable-buffer-local 'flycheck-idle-change-delay)
+   (defun jc/use-eslint-from-node-modules ()
+       "Set local eslint if available."
+       (let* ((root (locate-dominating-file
+		     (or (buffer-file-name) default-directory)
+		     "node_modules"))
+	      (eslint (and root
+			   (expand-file-name "node_modules/eslint/bin/eslint.js"
+					     root))))
+	 (when (and eslint (file-executable-p eslint))
+	   (setq-local flycheck-javascript-eslint-executable eslint))))
 
-(add-hook 'flycheck-after-syntax-check-hook
-	  'george/adjust-flycheck-automatic-syntax-eagerness)
+   (setq flycheck-check-syntax-automatically '(idle-change save))
+
+   (defun george/adjust-flycheck-automatic-syntax-eagerness ()
+     "Adjust how often we check for errors based on if there are any.
+      This lets us fix any errors as quickly as possible, but in a
+      clean buffer we're an order of magnitude laxer about checking."
+     (setq flycheck-idle-change-delay
+	   (if flycheck-current-errors 0.5 30.0)))
+
+   ;; Each buffer gets its own idle-change-delay because of the
+   ;; buffer-sensitive adjustment above.
+   (make-variable-buffer-local 'flycheck-idle-change-delay)
+
+   (add-hook 'flycheck-after-syntax-check-hook
+	     'george/adjust-flycheck-automatic-syntax-eagerness)
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 ;(setq exec-path (append exec-path '("/usr/local/bin")))
