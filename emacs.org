@@ -37,7 +37,7 @@ So let's use our own implementation
 		     (`not-checked "Disabled")
 		     (`errored     (propertize "Error"
 					       'face (zerodark-face-when-active 'zerodark-error-face)))
-		     (`interrupted (propertize "⛔ Interrupted"
+		     (`interrupted (propertize "Interrupted"
 					       'face (zerodark-face-when-active 'zerodark-error-face)))
 		     (`suspicious  ""))))
 	(propertize text
