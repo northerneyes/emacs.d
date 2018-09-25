@@ -293,7 +293,7 @@ Set up default behaviour for ansi-term
    (make-variable-buffer-local 'flycheck-idle-change-delay)
 
    (add-hook 'flycheck-after-syntax-check-hook
-	     george/adjust-flycheck-automatic-syntax-eagerness)
+	     'george/adjust-flycheck-automatic-syntax-eagerness)
  #+END_SRC
 * Typescript
 ** Node env (fix it later)

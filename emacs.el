@@ -241,7 +241,7 @@ clean buffer we're an order of magnitude laxer about checking."
 (make-variable-buffer-local 'flycheck-idle-change-delay)
 
 (add-hook 'flycheck-after-syntax-check-hook
-	  george/adjust-flycheck-automatic-syntax-eagerness)
+	  'george/adjust-flycheck-automatic-syntax-eagerness)
 
 (setq exec-path (append exec-path '("~/.nvm/versions/node/v8.11.3/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
