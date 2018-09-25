@@ -183,6 +183,7 @@
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-find-file)
 (define-key projectile-mode-map (kbd "s-r") 'projectile-switch-project)
+(define-key projectile-mode-map (kbd "s-f") 'projectile-ag)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 (use-package ag
   :ensure t
@@ -221,23 +222,40 @@
     :config
     (add-hook 'prog-mode-hook 'smartparens-mode))
 
-(use-package aggressive-indent
-      :ensure t)
+;(use-package aggressive-indent
+ ;     :ensure t)
 
 (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 (show-paren-mode 1)
 
 (use-package flycheck
-  :commands (flycheck-mode)
-  :diminish
-  :init (add-hook 'prog-mode-hook #'flycheck-mode))
-(setq flycheck-check-syntax-automatically '(mode-enabled idle-change save))
+  :ensure t
+  :config
+  :init
+  (add-hook 'after-init-hook 'global-flycheck-mode)
+  (add-hook 'typescript-mode-hook #'flycheck-mode)
+  (add-hook 'rjsx-mode-hook #'flycheck-mode)
+  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
+ )
+
+(defun jc/use-eslint-from-node-modules ()
+    "Set local eslint if available."
+    (let* ((root (locate-dominating-file
+		  (or (buffer-file-name) default-directory)
+		  "node_modules"))
+	   (eslint (and root
+			(expand-file-name "node_modules/eslint/bin/eslint.js"
+					  root))))
+      (when (and eslint (file-executable-p eslint))
+	(setq-local flycheck-javascript-eslint-executable eslint))))
+
+(setq flycheck-check-syntax-automatically '(idle-change save))
 
 (defun george/adjust-flycheck-automatic-syntax-eagerness ()
   "Adjust how often we check for errors based on if there are any.
-This lets us fix any errors as quickly as possible, but in a
-clean buffer we're an order of magnitude laxer about checking."
+   This lets us fix any errors as quickly as possible, but in a
+   clean buffer we're an order of magnitude laxer about checking."
   (setq flycheck-idle-change-delay
 	(if flycheck-current-errors 0.5 30.0)))
 
@@ -266,6 +284,32 @@ clean buffer we're an order of magnitude laxer about checking."
 	 (typescript-mode . tide-hl-identifier-mode)
 	))
 
+(use-package js2-mode
+  :ensure t
+  :defer t
+  :commands js2-mode
+  :init
+  (progn
+    (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
+    (setq-default js2-basic-offset 2)
+    (setq-default js-indent-level 2)
+    (customize-set-variable 'js2-mode-show-parse-errors nil)
+    (customize-set-variable 'js2-strict-missing-semi-warning nil)
+    (customize-set-variable 'js2-strict-trailing-comma-warning nil)
+    (customize-set-variable 'js2-strict-inconsistent-return-warning nil)))
+
+(use-package rjsx-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.js" . rjsx-mode)))
+
+(defadvice js-jsx-indent-line (after js-jsx-indent-line-after-hack activate)
+  "Workaround sgml-mode and follow airbnb component style."
+  (save-excursion
+    (beginning-of-line)
+    (if (looking-at-p "^ +\/?> *$")
+	(delete-char sgml-basic-offset))))
+
 (use-package add-node-modules-path
     :ensure t)
 
@@ -276,6 +320,16 @@ clean buffer we're an order of magnitude laxer about checking."
     '(progn
        (add-hook 'typescript-mode-hook #'add-node-modules-path)
        (add-hook 'typescript-mode-hook #'prettier-js-mode)))
+
+(eval-after-load 'rjsx-mode
+    '(progn
+       (add-hook 'rjsx-mode-hook #'add-node-modules-path)
+       (add-hook 'rjsx-mode-hook  #'prettier-js-mode)))
+
+(setq prettier-js-args '(
+  "--single-quote" "true"
+  "--jsx-bracket-same-line" "true"
+))
 
 (use-package magit
     :ensure t

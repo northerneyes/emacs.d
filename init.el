@@ -7,7 +7,11 @@
 ;                      (format "%.2f seconds"
 ;                              (float-time
 ;                               (time-subtract after-init-time before-init-time)))
-;                      gcs-done)))
+					;                      gcs-done)))
+
+(add-to-list 'default-frame-alist '(height . 45))
+(add-to-list 'default-frame-alist '(width . 95))
+
 (defvar startup/file-name-handler-alist file-name-handler-alist)
 (setq file-name-handler-alist nil)
 
@@ -85,6 +89,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(js2-mode-show-parse-errors nil)
+ '(js2-strict-inconsistent-return-warning nil)
+ '(js2-strict-missing-semi-warning nil)
+ '(js2-strict-trailing-comma-warning nil)
  '(package-selected-packages
    (quote
-    (exec-path-from-shell add-node-modules-path prettier-js buffer-flip hungry-delete diminish aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))
+    (web-mode rjsx-mode js2-mode exec-path-from-shell add-node-modules-path prettier-js buffer-flip hungry-delete diminish aggressive-indent smartparens ido-vertical-mode htmlize zerodark-theme which-key use-package tide org-bullets oceanic-theme markdown-mode magit esup counsel-projectile company beacon ag ace-window))))

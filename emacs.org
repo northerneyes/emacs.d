@@ -221,6 +221,7 @@ Set up default behaviour for ansi-term
   (projectile-mode +1)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-find-file)
   (define-key projectile-mode-map (kbd "s-r") 'projectile-switch-project)
+  (define-key projectile-mode-map (kbd "s-f") 'projectile-ag)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (use-package ag
     :ensure t
@@ -268,8 +269,8 @@ Set up default behaviour for ansi-term
 #+END_SRC
 ** Keep things indented correctly
 #+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent
-      :ensure t)
+;(use-package aggressive-indent
+ ;     :ensure t)
 #+END_SRC
 ** Expand parentheses for me.
 #+BEGIN_SRC emacs-lisp
@@ -282,25 +283,41 @@ Set up default behaviour for ansi-term
 * Flycheck
 ** Smart errors like eagerness from here [[https://github.com/magnars/.emacs.d/blob/master/settings/setup-flycheck.el][config]]
  #+BEGIN_SRC emacs-lisp
-    (use-package flycheck
-     :commands (flycheck-mode)
-     :diminish
-     :init (add-hook 'prog-mode-hook #'flycheck-mode))
-   (setq flycheck-check-syntax-automatically '(mode-enabled idle-change save))
+      (use-package flycheck
+	:ensure t
+	:config
+	:init
+	(add-hook 'typescript-mode-hook #'flycheck-mode)
+	(add-hook 'rjsx-mode-hook #'flycheck-mode)
+	(add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
+       )
 
-   (defun george/adjust-flycheck-automatic-syntax-eagerness ()
-     "Adjust how often we check for errors based on if there are any.
-   This lets us fix any errors as quickly as possible, but in a
-   clean buffer we're an order of magnitude laxer about checking."
-     (setq flycheck-idle-change-delay
-	   (if flycheck-current-errors 0.5 30.0)))
+      (defun jc/use-eslint-from-node-modules ()
+	  "Set local eslint if available."
+	  (let* ((root (locate-dominating-file
+			(or (buffer-file-name) default-directory)
+			"node_modules"))
+		 (eslint (and root
+			      (expand-file-name "node_modules/eslint/bin/eslint.js"
+						root))))
+	    (when (and eslint (file-executable-p eslint))
+	      (setq-local flycheck-javascript-eslint-executable eslint))))
 
-   ;; Each buffer gets its own idle-change-delay because of the
-   ;; buffer-sensitive adjustment above.
-   (make-variable-buffer-local 'flycheck-idle-change-delay)
+      (setq flycheck-check-syntax-automatically '(idle-change save))
 
-   (add-hook 'flycheck-after-syntax-check-hook
-	     'george/adjust-flycheck-automatic-syntax-eagerness)
+      (defun george/adjust-flycheck-automatic-syntax-eagerness ()
+	"Adjust how often we check for errors based on if there are any.
+	 This lets us fix any errors as quickly as possible, but in a
+	 clean buffer we're an order of magnitude laxer about checking."
+	(setq flycheck-idle-change-delay
+	      (if flycheck-current-errors 0.5 30.0)))
+
+      ;; Each buffer gets its own idle-change-delay because of the
+      ;; buffer-sensitive adjustment above.
+      (make-variable-buffer-local 'flycheck-idle-change-delay)
+
+      (add-hook 'flycheck-after-syntax-check-hook
+		'george/adjust-flycheck-automatic-syntax-eagerness)
  #+END_SRC
 * Typescript
 ** Node env (fix it later)
@@ -327,18 +344,57 @@ Set up default behaviour for ansi-term
 	   (typescript-mode . tide-hl-identifier-mode)
 	  ))
 #+END_SRC
+* Javascript
+** Js2-mode + rjsx + indent fix
+#+BEGIN_SRC emacs-lisp
+  (use-package js2-mode
+    :ensure t
+    :defer t
+    :commands js2-mode
+    :init
+    (progn
+      (add-to-list 'interpreter-mode-alist (cons "node" 'js2-mode))
+      (setq-default js2-basic-offset 2)
+      (setq-default js-indent-level 2)
+      (customize-set-variable 'js2-mode-show-parse-errors nil)
+      (customize-set-variable 'js2-strict-missing-semi-warning nil)
+      (customize-set-variable 'js2-strict-trailing-comma-warning nil)
+      (customize-set-variable 'js2-strict-inconsistent-return-warning nil)))
+
+  (use-package rjsx-mode
+    :ensure t
+    :config
+    (add-to-list 'auto-mode-alist '("\\.js" . rjsx-mode)))
+
+  (defadvice js-jsx-indent-line (after js-jsx-indent-line-after-hack activate)
+    "Workaround sgml-mode and follow airbnb component style."
+    (save-excursion
+      (beginning-of-line)
+      (if (looking-at-p "^ +\/?> *$")
+	  (delete-char sgml-basic-offset))))
+#+END_SRC
 * Prettier
 #+BEGIN_SRC emacs-lisp
-  (use-package add-node-modules-path
-    :ensure t)
+    (use-package add-node-modules-path
+      :ensure t)
 
-  (use-package prettier-js
-    :ensure t)
+    (use-package prettier-js
+      :ensure t)
 
-(eval-after-load 'typescript-mode
-    '(progn
-       (add-hook 'typescript-mode-hook #'add-node-modules-path)
-       (add-hook 'typescript-mode-hook #'prettier-js-mode)))
+  (eval-after-load 'typescript-mode
+      '(progn
+	 (add-hook 'typescript-mode-hook #'add-node-modules-path)
+	 (add-hook 'typescript-mode-hook #'prettier-js-mode)))
+
+  (eval-after-load 'rjsx-mode
+      '(progn
+	 (add-hook 'rjsx-mode-hook #'add-node-modules-path)
+	 (add-hook 'rjsx-mode-hook  #'prettier-js-mode)))
+
+  (setq prettier-js-args '(
+    "--single-quote" "true"
+    "--jsx-bracket-same-line" "true"
+  ))
 #+END_SRC
 * Magit
 ** [[https://github.com/magit/magit/wiki/Cheatsheet][Cheatsheet]]
